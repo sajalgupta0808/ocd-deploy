@@ -1,0 +1,27 @@
+/**
+ * Global Styles and Tailwind Customizations
+ * 
+ * Purpose: Custom CSS classes and global style overrides
+ * 
+ * Structure:
+ * - Custom utility classes
+ * - Component-specific styles
+ * - Global overrides
+ * - Animation keyframes
+ * - Print styles
+ * 
+ * Usage: Import in main.jsx or index.css
+ */
+
+/* Global app background */
+html, body, #root {
+  background-color: #000000;
+  min-height: 100vh;
+}
+
+/* Bebas Neue for h2 headings */
+h2 {
+  font-family: 'Bebas Neue', cursive;
+  letter-spacing: 0.1em; /* Adds elongated spacing */
+}
+
