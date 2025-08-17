@@ -103,11 +103,12 @@ const __dirname = dirname(__filename);
 const app = express();
 app.use(helmet());
 app.use(cors(
-//   {
-//   origin: "http://localhost:5173",
-//   methods: ["POST", "GET", "PUT", "DELETE"],
-//   credentials: true
-// }
+  {
+  // origin: "http://localhost:5173",
+  origin: "https://ocd-deploy-lovat.vercel.app/",
+  methods: ["POST", "GET", "PUT", "DELETE"],
+  credentials: true
+}
 ));
 app.use(express.json({ limit: '30mb' }));
 
