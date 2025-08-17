@@ -35,7 +35,7 @@ const Toolbar = () => {
   const [service, setService] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:4000/services/${id}`) // API for single service
+    fetch(`https://ocd-deploy.onrender.com/services/${id}`) // API for single service
       .then((res) => res.json())
       .then((data) => setService(data))
       .catch((err) => console.error('Error fetching service:', err));

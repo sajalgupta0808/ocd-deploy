@@ -262,7 +262,7 @@ export default function ServicesSection({
   const [services, setServices] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:4000/services') // 🔹 your API endpoint
+    fetch('https://ocd-deploy.onrender.com/services') // 🔹 your API endpoint
       .then((res) => res.json())
       .then((data) => setServices(data))
       .catch((err) => console.error('Error fetching services:', err));
