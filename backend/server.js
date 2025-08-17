@@ -85,6 +85,8 @@ import { dirname } from 'path';
 import fs from 'fs';
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
+import cron from 'node-cron';
+import fetch from 'node-fetch'; // Required for making HTTP requests in cron
 
 import authRoutes from './routes/auth.js';
 import serviceRoutes from './routes/services.js';
@@ -92,7 +94,7 @@ import blogRoutes from './routes/blogs.js';
 import uploadRoutes from './routes/uploads.js';
 import homepageLinksRouter from './routes/homepageLinks.js';
 import { q } from './utils/db.js';
-// DATABASE_URL=postgresql://uc2paq:xau_v1SUGl4YnesfkTmhEJbBP4THDzs4hJbo0@us-east-1.sql.xata.sh/ocd-design-studio:main?sslmode=require
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -100,13 +102,11 @@ const __dirname = dirname(__filename);
 
 const app = express();
 app.use(helmet());
-app.use(cors(
-  {
-    origin:"http://localhost:5173",
-    methods:["POST", "GET", "PUT", "DELETE"],
-    credentials: true
-  }
-));
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ["POST", "GET", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json({ limit: '30mb' }));
 
 const uploadDir = process.env.UPLOAD_DIR || 'uploads';
@@ -114,7 +114,6 @@ if (!fs.existsSync(join(__dirname, uploadDir))) {
   fs.mkdirSync(join(__dirname, uploadDir), { recursive: true });
 }
 
-// app.use('/uploads', express.static(join(__dirname, uploadDir)));
 app.use(
   '/uploads',
   express.static(join(__dirname, uploadDir), {
@@ -133,7 +132,7 @@ app.use('/blogs', blogRoutes);
 app.use('/uploads', uploadRoutes);
 app.use('/api', homepageLinksRouter);
 
-// seed single admin on start (idempotent)
+// Seed single admin on start (idempotent)
 async function seedAdmin() {
   const email = process.env.ADMIN_EMAIL;
   const pw = process.env.ADMIN_PASSWORD;
@@ -151,6 +150,19 @@ async function seedAdmin() {
 }
 
 const port = process.env.PORT || 4000;
+
+// Ping the server every 5 minutes to keep it awake
+cron.schedule('*/5 * * * *', async () => {
+  const serverUrl = `http://localhost:${port}/health`; // change this to your public URL in production
+  try {
+    const res = await fetch(serverUrl);
+    const data = await res.json();
+    console.log(`[keep-alive] Server pinged:`, data);
+  } catch (err) {
+    console.error(`[keep-alive] Ping failed:`, err.message);
+  }
+});
+
 seedAdmin()
   .then(() => {
     app.listen(port, () => {
@@ -161,6 +173,7 @@ seedAdmin()
     console.error('Failed to seed admin:', e);
     process.exit(1);
   });
+
 // const port = process.env.PORT || 4000;
 // initDb()
 //   .then(() => seedAdmin())
