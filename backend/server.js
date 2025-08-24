@@ -105,7 +105,7 @@ app.use(helmet());
 app.use(cors(
   {
   // origin: "http://localhost:5173",
-  origin: "https://ocd-deploy-lovat.vercel.app",
+  origin: "*",
   methods: ["POST", "GET", "PUT", "DELETE"],
   credentials: true
 }
@@ -122,7 +122,7 @@ app.use(
   express.static(join(__dirname, uploadDir), {
     setHeaders: (res) => {
       res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-      res.setHeader("Access-Control-Allow-Origin", "https://ocd-deploy-lovat.vercel.app");
+      res.setHeader("Access-Control-Allow-Origin", "https://ocd-deploy-lovat.vercel.app", "http://localhost:5173");
     }
   })
 );
