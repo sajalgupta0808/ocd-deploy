@@ -30,10 +30,12 @@ CREATE TABLE IF NOT EXISTS blogs (
   rich_text1 TEXT,
   image1 TEXT,
   image2 TEXT,
+  image3 TEXT,
   rich_text2 TEXT,
   video TEXT,
   rich_text3 TEXT,
   conclusion TEXT,
+  tags TEXT[],
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
