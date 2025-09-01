@@ -17,7 +17,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.post('/', authMiddleware, upload.single('file'), (req, res) => {
-  const base = process.env.PUBLIC_BASE_URL || `http://localhost:${process.env.PORT || 4000}`;
+  const base = process.env.PUBLIC_BASE_URL ;
+  // || `http://localhost:${process.env.PORT || 4000}`;
   const url = `${base}/uploads/${req.file.filename}`;
   res.json({ url });
 });
