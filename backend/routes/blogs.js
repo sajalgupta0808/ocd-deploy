@@ -23,24 +23,60 @@ const router = Router();
 //   res.json({ data: rows.rows, total: total.rows[0].n, page, pages: Math.ceil(total.rows[0].n / limit) });
 // });
 
-// router.get('/:id', async (req, res) => {
-//   const r = await q('SELECT * FROM blogs WHERE id=$1', [req.params.id]);
-//   if (r.rows.length === 0) return res.status(404).json({ error: 'Not found' });
-//   res.json(r.rows[0]);
+// router.get('/', async (req, res) => {
+//   const page = Math.max(1, parseInt(req.query.page?.toString() || '1', 10));
+//   const limit = Math.max(1, Math.min(100, parseInt(req.query.limit?.toString() || '10', 10)));
+//   const offset = (page - 1) * limit;
+
+//   const total = await q('SELECT COUNT(*)::int AS n FROM blogs', []);
+//   const rows = await q(
+//     `SELECT id, name, minute_read, date, image1, image2, image3, tags, created_at, updated_at
+//      FROM blogs
+//      ORDER BY date DESC, created_at DESC
+//      LIMIT $1 OFFSET $2`,
+//     [limit, offset]
+//   );
+
+//   res.json({
+//     data: rows.rows,
+//     total: total.rows[0].n,
+//     page,
+//     pages: Math.ceil(total.rows[0].n / limit)
+//   });
 // });
+
 
 router.get('/', async (req, res) => {
   const page = Math.max(1, parseInt(req.query.page?.toString() || '1', 10));
   const limit = Math.max(1, Math.min(100, parseInt(req.query.limit?.toString() || '10', 10)));
   const offset = (page - 1) * limit;
 
-  const total = await q('SELECT COUNT(*)::int AS n FROM blogs', []);
+  const tagFilter = req.query.tags
+    ? req.query.tags.toString().split(',').map(tag => tag.trim()).filter(Boolean)
+    : null;
+
+  const values = [limit, offset];
+  let whereClause = '';
+  let countClause = '';
+
+  if (tagFilter && tagFilter.length > 0) {
+    values.unshift(tagFilter); // Add tagFilter as $1, so limit becomes $2, offset $3
+    whereClause = `WHERE tags && $1`; // tags && array: at least one overlaps
+    countClause = `WHERE tags && $1`;
+  }
+
+  const total = await q(
+    `SELECT COUNT(*)::int AS n FROM blogs ${countClause}`,
+    tagFilter ? [tagFilter] : []
+  );
+
   const rows = await q(
     `SELECT id, name, minute_read, date, image1, image2, image3, tags, created_at, updated_at
      FROM blogs
+     ${whereClause}
      ORDER BY date DESC, created_at DESC
-     LIMIT $1 OFFSET $2`,
-    [limit, offset]
+     LIMIT $${values.indexOf(limit) + 1} OFFSET $${values.indexOf(offset) + 1}`,
+    values
   );
 
   res.json({
@@ -49,6 +85,12 @@ router.get('/', async (req, res) => {
     page,
     pages: Math.ceil(total.rows[0].n / limit)
   });
+});
+
+router.get('/:id', async (req, res) => {
+  const r = await q('SELECT * FROM blogs WHERE id=$1', [req.params.id]);
+  if (r.rows.length === 0) return res.status(404).json({ error: 'Not found' });
+  res.json(r.rows[0]);
 });
 
 
