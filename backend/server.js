@@ -44,7 +44,7 @@ app.use(
   express.static(join(__dirname, uploadDir), {
     setHeaders: (res) => {
       res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-      res.setHeader("Access-Control-Allow-Origin", "https://ocd-deploy-lovat.vercel.app", "http://localhost:5173", "https://ocd-prod.vercel.app");
+      res.setHeader("Access-Control-Allow-Origin", "https://ocd-deploy-lovat.vercel.app", "http://localhost:5173", "https://ocd-prod.vercel.app", "https://ocd-prod-6k8m.vercel.app");
     }
   })
 );
